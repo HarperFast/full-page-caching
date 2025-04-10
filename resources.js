@@ -18,11 +18,12 @@ tables.PageCache.sourcedFrom({
 	async get(path) {
 		const origin = config.origin.url; // get the origin URL from the config file
 		const response = await fetch(new URL(path, origin)); // Fetch the page content
-		const pageContents = await response.bytes(); // Download the page
+
+		const blob = await createBlob((await response.body));
 		// this is the cached record to return and store in the cached table
 		return {
 			path,
-			pageContents
+			pageContents: blob
 		};
 	}
 });

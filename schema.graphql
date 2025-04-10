@@ -6,9 +6,9 @@
 # Here we have specified the expiration time at one hour (3600 seconds)
 type PageCache @table(expiration: 3600) {
   # The URL path of the cache page is the primary key, for identifying cached pages
-  path: ID @primaryKey
+  path: Any @primaryKey
 
   # The full HTML of the cached webpage. It is most efficient to store the page contents in binary format, but can also
   # be stored as a string if you will do text processing on it
-  pageContents: Bytes
+  pageContents: Blob
 }
