@@ -1,10 +1,21 @@
 {
-  "name": "application-template",
+  "name": "full-page-caching",
   "version": "1.0.0",
-  "description": "A template for building HarperDB applications",
+  "description": "A template for implementing full/partial page caching using Harper application component",
   "type": "module",
+  "scripts": {
+    "start": "harper run .",
+    "dev": "harper dev .",
+    "test:integration": "harper-integration-test-run --isolation=none \"integrationTests/**/*.test.ts\""
+  },
   "dependencies": {
     "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@harperfast/integration-testing": "^0.4.0",
+    "@types/node": "^22.0.0",
+    "harper": "^5.0.28",
+    "typescript": "^5.0.0"
   },
   "license": "Apache-2.0"
 }
