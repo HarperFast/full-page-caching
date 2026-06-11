@@ -19,7 +19,8 @@ tables.PageCache.sourcedFrom({
 		const origin = config.origin.url; // get the origin URL from the config file
 		const response = await fetch(new URL(path, origin)); // Fetch the page content
 
-		if (!response.ok) throw new Error(`Origin returned ${response.status} for path: ${path}`);
+		// Don't cache error responses — return null so the caller receives the upstream status.
+		if (!response.ok) return null;
 		const blob = await createBlob((await response.body));
 		// this is the cached record to return and store in the cached table
 		return {
