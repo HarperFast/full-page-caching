@@ -42,12 +42,15 @@ const TEST_PATH = 'solutions/distributed-applications';
 // Poll until Harper serves the cached entry with a validator (ETag or Last-Modified).
 // The first read is a cache MISS with an asynchronous background commit; validators only
 // appear once the entry is committed to the cache table. We retry up to 20 times × 100 ms.
+// Returns plain values rather than the Response: every response here is drained to
+// free the undici socket, which leaves it disturbed — handing a disturbed Response
+// back to callers is a trap, since any later `.text()`/`.json()` on it throws.
 async function fetchUntilCached(
   httpURL: string,
   auth: string,
   encodedId: string,
-): Promise<{ res: Response; etag: string | null; lastModified: string | null }> {
-  let last: Response | undefined;
+): Promise<{ status: number; etag: string | null; lastModified: string | null }> {
+  let lastStatus = 0;
   for (let attempt = 0; attempt < 20; attempt++) {
     const res = await fetch(`${httpURL}/PageCache/${encodedId}`, {
       headers: { Authorization: auth },
@@ -55,12 +58,16 @@ async function fetchUntilCached(
     await res.arrayBuffer(); // drain body
     const validator = res.headers.get('etag') ?? res.headers.get('last-modified');
     if (res.status === 200 && validator) {
-      return { res, etag: res.headers.get('etag'), lastModified: res.headers.get('last-modified') };
+      return {
+        status: res.status,
+        etag: res.headers.get('etag'),
+        lastModified: res.headers.get('last-modified'),
+      };
     }
-    last = res;
+    lastStatus = res.status;
     await new Promise((r) => setTimeout(r, 100));
   }
-  return { res: last!, etag: null, lastModified: null };
+  return { status: lastStatus, etag: null, lastModified: null };
 }
 
 void suite('PageCache', () => {
@@ -139,7 +146,7 @@ void suite('PageCache', () => {
     // Wait until the cache entry is committed before the second request so that body
     // equality is only asserted once Harper is provably serving from cache (not a
     // concurrent MISS that may return dynamic content).
-    await fetchUntilCached(httpURL, auth, encodedId);
+    const primed = await fetchUntilCached(httpURL, auth, encodedId);
 
     const res2 = await fetch(`${httpURL}/PageCache/${encodedId}`, {
       headers: { Authorization: auth },
@@ -149,6 +156,16 @@ void suite('PageCache', () => {
     strictEqual(res2.status, res1.status, 'second request should return the same status');
     if (res1.status === 200) {
       strictEqual(body1, body2, 'cached page content should be identical on the second request');
+      // Identical bodies alone would also be satisfied by two cache MISSes against a
+      // static origin. Validators are only emitted on a cache HIT, so assert one is
+      // present — but only when priming actually reached a committed entry, so a
+      // network-less environment still skips rather than fails.
+      if (primed.status === 200 && (primed.etag || primed.lastModified)) {
+        ok(
+          res2.headers.has('etag') || res2.headers.has('last-modified'),
+          'second request should be served from cache and carry a validator',
+        );
+      }
     }
   });
 
@@ -160,13 +177,13 @@ void suite('PageCache', () => {
 
     // Poll until the entry is committed and Harper emits a validator.
     // The priming miss has an async commit — validators only appear on cache HITs.
-    const { res, etag, lastModified } = await fetchUntilCached(httpURL, auth, encodedId);
+    const { status, etag, lastModified } = await fetchUntilCached(httpURL, auth, encodedId);
 
-    if (res.status !== 200) {
+    if (status !== 200) {
       // Network unavailable — skip conditional test.
       ok(
-        res.status < 500 || res.status === 502 || res.status === 503 || res.status === 504,
-        `unexpected error status ${res.status} while priming cache`,
+        status < 500 || status === 502 || status === 503 || status === 504,
+        `unexpected error status ${status} while priming cache`,
       );
       return;
     }

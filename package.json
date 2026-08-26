@@ -15,7 +15,7 @@
     "@harperfast/integration-testing": "^0.4.0",
     "@types/node": "^22.0.0",
     "harper": "^5.2.1",
-    "typescript": "^5.0.0"
+    "typescript": "^5.8.0"
   },
   "license": "Apache-2.0"
 }
