@@ -1,11 +1,11 @@
-# HarperDB Full Page/Partial Page Cache Application Template
+# Harper Full Page/Partial Page Cache Application Template
 
-This repo is a template for implementing full/partial page caching using HarperDB application component.
+This repo is a template for implementing full/partial page caching using a Harper application component.
 
-You can visit the links below to learn more about HarperDB and application components:
+You can visit the links below to learn more about Harper and application components:
 
-- [HarperDB Application Component Github repo](https://github.com/HarperDB/application-template)
-- [HarperDB Documentation](https://docs.harperdb.io/docs/developers/applications)
+- [Harper Application Component Github repo](https://github.com/HarperFast/application-template)
+- [Harper Documentation](https://docs.harperdb.io/docs/developers/applications)
 
 
 
@@ -13,10 +13,10 @@ You can visit the links below to learn more about HarperDB and application compo
 
 ### Prerequisites
 
-Before cloning this repository, ensure HarperDB is installed on your local machine. If it's not already installed,
-execute this in a terminal to install HarperDB.
+Before cloning this repository, ensure Harper is installed on your local machine. If it's not already installed,
+execute this in a terminal to install Harper.
 
-```npm i -g harperdb``` 
+```npm i -g harper``` 
 
 
 ### ***Installation***
@@ -30,9 +30,9 @@ execute this in a terminal to install HarperDB.
 
 >>>```cd <repository-directory>```
 
-3. ***Start HarperDB in your project directory by running*** 
+3. ***Start Harper in your project directory by running*** 
 
->>>```harperdb dev .```
+>>>```harper dev .```
 
 
 ## Implementing the Caching Solution
@@ -53,15 +53,6 @@ Follow the comments in the code for guidance on how to set it up.
 
 
 
-## Learn more about caching with HarperDB visit:
+## Learn more about caching with Harper:
 
-- [HarperDB Application Caching Docs](https://docs.harperdb.io/docs/developers/applications/caching)
-
-
-
-
-
-
-
-
-
+- [Harper Application Caching Docs](https://docs.harperdb.io/docs/developers/applications/caching)
